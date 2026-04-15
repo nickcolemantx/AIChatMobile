@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">AI Chat</string>
+
+    <string name="login_title">Connect to home AI</string>
+    <string name="login_server_url">Server URL</string>
+    <string name="login_server_hint">http://192.168.1.50:8080</string>
+    <string name="login_username">Username</string>
+    <string name="login_password">Password</string>
+    <string name="login_button">Sign in</string>
+
+    <string name="chats_title">Chats</string>
+    <string name="chats_empty">No chats yet. Tap + to start one.</string>
+    <string name="chats_new">New chat</string>
+    <string name="chats_logout">Log out</string>
+
+    <string name="chat_hint">Message</string>
+    <string name="chat_send">Send</string>
+    <string name="chat_stop">Stop</string>
+    <string name="chat_copy">Copy</string>
+    <string name="chat_copied">Copied</string>
+    <string name="chat_delete">Delete chat</string>
+
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_create">Create</string>
+    <string name="dialog_delete">Delete</string>
+    <string name="dialog_new_chat_title">New chat</string>
+    <string name="dialog_new_chat_hint">Title (optional)</string>
+    <string name="dialog_delete_chat_confirm">Delete this chat?</string>
+</resources>
