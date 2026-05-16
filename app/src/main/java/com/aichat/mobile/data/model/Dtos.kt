@@ -23,6 +23,7 @@ data class CreateChatRequest(
 @JsonClass(generateAdapter = true)
 data class SendMessageRequest(
     val content: String,
+    val images: List<String>? = null,
 )
 
 @JsonClass(generateAdapter = true)
@@ -40,6 +41,7 @@ data class ChatMessageDto(
     val role: String,
     val content: String,
     val timestamp: String?,
+    val images: List<String>? = null,
 )
 
 @JsonClass(generateAdapter = true)

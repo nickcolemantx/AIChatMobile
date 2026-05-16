@@ -25,9 +25,9 @@ class ChatRepository @Inject constructor(
 
     suspend fun deleteChat(id: String) = api.deleteChat(id)
 
-    suspend fun sendMessage(id: String, content: String) =
-        api.sendMessage(id, SendMessageRequest(content = content))
+    suspend fun sendMessage(id: String, content: String, images: List<String>? = null) =
+        api.sendMessage(id, SendMessageRequest(content = content, images = images?.takeIf { it.isNotEmpty() }))
 
-    fun streamMessage(chatId: String, content: String): Flow<StreamEvent> =
-        sse.streamMessage(chatId, content)
+    fun streamMessage(chatId: String, content: String, images: List<String>? = null): Flow<StreamEvent> =
+        sse.streamMessage(chatId, content, images)
 }

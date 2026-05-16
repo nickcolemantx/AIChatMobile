@@ -18,6 +18,7 @@ data class ChatUiState(
     val chatId: String = "",
     val title: String = "",
     val messages: List<ChatMessageDto> = emptyList(),
+    val pendingImages: List<String> = emptyList(),
     val streaming: Boolean = false,
     val loading: Boolean = false,
     val error: String? = null,
@@ -52,15 +53,33 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun addImage(base64: String) {
+        _state.value = _state.value.copy(pendingImages = _state.value.pendingImages + base64)
+    }
+
+    fun removeImage(index: Int) {
+        val current = _state.value.pendingImages
+        if (index !in current.indices) return
+        _state.value = _state.value.copy(pendingImages = current.toMutableList().also { it.removeAt(index) })
+    }
+
     fun sendStreaming(content: String) {
         val chatId = _state.value.chatId
-        if (chatId.isBlank() || content.isBlank() || _state.value.streaming) return
+        val images = _state.value.pendingImages
+        if (chatId.isBlank() || _state.value.streaming) return
+        if (content.isBlank() && images.isEmpty()) return
 
         val now = Instant.now().toString()
-        val userMsg = ChatMessageDto(role = "user", content = content, timestamp = now)
+        val userMsg = ChatMessageDto(
+            role = "user",
+            content = content,
+            timestamp = now,
+            images = images.takeIf { it.isNotEmpty() },
+        )
         val assistantSeed = ChatMessageDto(role = "assistant", content = "", timestamp = now)
         _state.value = _state.value.copy(
             messages = _state.value.messages + userMsg + assistantSeed,
+            pendingImages = emptyList(),
             streaming = true,
             error = null,
         )
@@ -69,7 +88,7 @@ class ChatViewModel @Inject constructor(
         streamJob = viewModelScope.launch {
             val buffer = StringBuilder()
             runCatching {
-                repo.streamMessage(chatId, content).collect { event ->
+                repo.streamMessage(chatId, content, images.takeIf { it.isNotEmpty() }).collect { event ->
                     when (event) {
                         is StreamEvent.Token -> {
                             buffer.append(event.text)

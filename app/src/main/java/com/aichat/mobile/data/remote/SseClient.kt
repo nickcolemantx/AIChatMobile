@@ -38,7 +38,11 @@ class SseClient @Inject constructor(
     private val tokenAdapter: JsonAdapter<Map<String, String>> =
         moshi.adapter(Types.newParameterizedType(Map::class.java, String::class.java, String::class.java))
 
-    fun streamMessage(chatId: String, content: String): Flow<StreamEvent> = callbackFlow {
+    fun streamMessage(
+        chatId: String,
+        content: String,
+        images: List<String>? = null,
+    ): Flow<StreamEvent> = callbackFlow {
         val base = prefs.currentBaseUrl()
         val token = prefs.currentToken()
         if (base.isNullOrBlank() || token.isNullOrBlank()) {
@@ -48,7 +52,12 @@ class SseClient @Inject constructor(
         }
 
         val bodyJson = moshi.adapter(SendMessageRequest::class.java)
-            .toJson(SendMessageRequest(content = content))
+            .toJson(
+                SendMessageRequest(
+                    content = content,
+                    images = images?.takeIf { it.isNotEmpty() },
+                ),
+            )
         val request = Request.Builder()
             .url(base.trimEnd('/') + "/api/chats/" + chatId + "/messages")
             .header("Authorization", "Bearer $token")
