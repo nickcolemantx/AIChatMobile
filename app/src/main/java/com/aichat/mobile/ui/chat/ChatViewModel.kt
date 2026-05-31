@@ -58,10 +58,41 @@ class ChatViewModel @Inject constructor(
                         messages = chat.messages,
                         loading = false,
                     )
+                    checkForActiveGeneration(chatId)
                 }
                 .onFailure { t ->
                     _state.value = _state.value.copy(loading = false, error = t.message)
                 }
+        }
+    }
+
+    private fun checkForActiveGeneration(chatId: String) {
+        viewModelScope.launch {
+            val status = runCatching { repo.getGenerationStatus(chatId) }.getOrNull() ?: return@launch
+            when (status.status) {
+                "GENERATING" -> {
+                    val assistantSeed = ChatMessageDto(
+                        role = "assistant",
+                        content = status.partialContent ?: "",
+                        timestamp = Instant.now().toString(),
+                    )
+                    _state.value = _state.value.copy(
+                        messages = _state.value.messages + assistantSeed,
+                        streaming = true,
+                        error = null,
+                    )
+                    lastContent = ""
+                    lastImages = null
+                    reconnectAttempted = false
+                    generationOpened = false
+                    startStreamJob(chatId)
+                }
+                "DONE" -> {
+                    // Generation finished between getChat and getGenerationStatus; reload for final message
+                    runCatching { repo.getChat(chatId) }
+                        .onSuccess { chat -> _state.value = _state.value.copy(messages = chat.messages) }
+                }
+            }
         }
     }
 
