@@ -23,7 +23,9 @@ import javax.inject.Singleton
 private const val TAG = "AIChatSse"
 
 sealed interface StreamEvent {
+    data object Opened : StreamEvent
     data class Token(val text: String) : StreamEvent
+    data class Replay(val content: String) : StreamEvent
     data object Done : StreamEvent
     data class Error(val message: String) : StreamEvent
 }
@@ -69,6 +71,7 @@ class SseClient @Inject constructor(
         val listener = object : EventSourceListener() {
             override fun onOpen(eventSource: EventSource, response: Response) {
                 Log.d(TAG, "onOpen status=${response.code} ct=${response.header("Content-Type")}")
+                trySend(StreamEvent.Opened)
             }
 
             override fun onEvent(
@@ -83,6 +86,10 @@ class SseClient @Inject constructor(
                         val text = runCatching { tokenAdapter.fromJson(data)?.get("t") }.getOrNull() ?: data
                         trySend(StreamEvent.Token(text))
                     }
+                    "replay" -> {
+                        val content = runCatching { tokenAdapter.fromJson(data)?.get("content") }.getOrNull() ?: data
+                        trySend(StreamEvent.Replay(content))
+                    }
                     "done" -> {
                         trySend(StreamEvent.Done)
                         close()
@@ -93,7 +100,7 @@ class SseClient @Inject constructor(
                     }
                     else -> {
                         // Unnamed SSE events default to "message". Treat them as tokens too.
-                        if (!data.isEmpty()) trySend(StreamEvent.Token(data))
+                        if (data.isNotEmpty()) trySend(StreamEvent.Token(data))
                     }
                 }
             }

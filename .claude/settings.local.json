@@ -3,7 +3,10 @@
     "allow": [
       "Bash(./gradlew :app:compileDebugKotlin)",
       "Bash(./gradlew :app:compileDebugKotlin --rerun-tasks)",
-      "Bash(./gradlew :app:assembleDebug)"
+      "Bash(./gradlew :app:assembleDebug)",
+      "Bash(./gradlew assembleDebug)",
+      "Bash(./gradlew compileDebugKotlin)",
+      "Bash(./gradlew :app:compileDebugKotlin --exclude-task :app:processDebugGoogleServices)"
     ]
   }
 }

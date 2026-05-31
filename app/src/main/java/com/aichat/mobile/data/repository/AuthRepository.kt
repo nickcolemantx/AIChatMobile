@@ -1,6 +1,7 @@
 package com.aichat.mobile.data.repository
 
 import com.aichat.mobile.data.model.LoginRequest
+import com.aichat.mobile.data.model.RegisterFcmTokenRequest
 import com.aichat.mobile.data.prefs.AppPreferences
 import com.aichat.mobile.data.remote.ApiService
 import javax.inject.Inject
@@ -17,6 +18,10 @@ class AuthRepository @Inject constructor(
             prefs.saveSession(baseUrl = baseUrl, token = "", username = "")
             val resp = api.login(LoginRequest(username = username, password = password))
             prefs.saveSession(baseUrl = baseUrl, token = resp.token, username = resp.username)
+            // Register FCM token with backend if we already have one
+            prefs.currentFcmToken()?.let { fcmToken ->
+                runCatching { api.registerFcmToken(RegisterFcmTokenRequest(fcmToken)) }
+            }
         }
 
     suspend fun logout() = prefs.clearSession()

@@ -3,6 +3,8 @@ package com.aichat.mobile.data.repository
 import com.aichat.mobile.data.model.ChatDto
 import com.aichat.mobile.data.model.ChatSummaryDto
 import com.aichat.mobile.data.model.CreateChatRequest
+import com.aichat.mobile.data.model.GenerationStatusDto
+import com.aichat.mobile.data.model.RegisterFcmTokenRequest
 import com.aichat.mobile.data.model.SendMessageRequest
 import com.aichat.mobile.data.remote.ApiService
 import com.aichat.mobile.data.remote.SseClient
@@ -30,4 +32,12 @@ class ChatRepository @Inject constructor(
 
     fun streamMessage(chatId: String, content: String, images: List<String>? = null): Flow<StreamEvent> =
         sse.streamMessage(chatId, content, images)
+
+    suspend fun getGenerationStatus(chatId: String): GenerationStatusDto =
+        api.getGenerationStatus(chatId)
+
+    suspend fun cancelGeneration(chatId: String) = api.cancelGeneration(chatId)
+
+    suspend fun registerFcmToken(token: String) =
+        api.registerFcmToken(RegisterFcmTokenRequest(token))
 }

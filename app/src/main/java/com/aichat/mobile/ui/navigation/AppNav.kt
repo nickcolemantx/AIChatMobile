@@ -22,17 +22,34 @@ object Routes {
 }
 
 @Composable
-fun AppNav(nav: NavHostController = rememberNavController()) {
+fun AppNav(
+    nav: NavHostController = rememberNavController(),
+    deepLinkChatId: String? = null,
+) {
     val loginVm: LoginViewModel = hiltViewModel()
     val token by loginVm.token.collectAsState(initial = null)
     val startDestination = if (token.isNullOrBlank()) Routes.LOGIN else Routes.CHATS
 
-    // If the user gets logged out elsewhere, bounce them back to login.
+    // Navigate to login on session expiry
     LaunchedEffect(token) {
         if (token.isNullOrBlank() && nav.currentDestination?.route != Routes.LOGIN) {
             nav.navigate(Routes.LOGIN) {
                 popUpTo(0) { inclusive = true }
             }
+        }
+    }
+
+    // FCM notification deep link: navigate to the relevant chat
+    LaunchedEffect(deepLinkChatId, token) {
+        if (deepLinkChatId.isNullOrBlank() || token.isNullOrBlank()) return@LaunchedEffect
+        // Ensure CHATS is in the back stack so the user can press Back to the list
+        if (nav.currentDestination?.route == Routes.LOGIN) {
+            nav.navigate(Routes.CHATS) {
+                popUpTo(Routes.LOGIN) { inclusive = true }
+            }
+        }
+        nav.navigate(Routes.chat(deepLinkChatId)) {
+            launchSingleTop = true
         }
     }
 

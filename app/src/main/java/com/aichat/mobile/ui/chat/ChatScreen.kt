@@ -171,10 +171,10 @@ fun ChatScreen(
                         },
                     )
                 }
-                if (state.streaming && state.messages.lastOrNull()?.content?.isBlank() == true) {
+                if ((state.streaming || state.polling) && state.messages.lastOrNull()?.content?.isBlank() == true) {
                     item("typing") {
                         Text(
-                            "…",
+                            if (state.polling) "Waiting for response…" else "…",
                             modifier = Modifier.padding(8.dp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -191,7 +191,7 @@ fun ChatScreen(
 
             MessageInput(
                 value = input,
-                streaming = state.streaming,
+                streaming = state.streaming || state.polling,
                 hasImages = state.pendingImages.isNotEmpty(),
                 onValueChange = { input = it },
                 onAttach = {

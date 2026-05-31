@@ -4,8 +4,10 @@ import com.aichat.mobile.data.model.ChatDto
 import com.aichat.mobile.data.model.ChatMessageDto
 import com.aichat.mobile.data.model.ChatSummaryDto
 import com.aichat.mobile.data.model.CreateChatRequest
+import com.aichat.mobile.data.model.GenerationStatusDto
 import com.aichat.mobile.data.model.LoginRequest
 import com.aichat.mobile.data.model.LoginResponse
+import com.aichat.mobile.data.model.RegisterFcmTokenRequest
 import com.aichat.mobile.data.model.SendMessageRequest
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -35,4 +37,13 @@ interface ApiService {
         @Path("id") id: String,
         @Body req: SendMessageRequest,
     ): ChatMessageDto
+
+    @GET("api/chats/{id}/generation")
+    suspend fun getGenerationStatus(@Path("id") id: String): GenerationStatusDto
+
+    @DELETE("api/chats/{id}/generation")
+    suspend fun cancelGeneration(@Path("id") id: String)
+
+    @POST("api/devices/fcm-token")
+    suspend fun registerFcmToken(@Body req: RegisterFcmTokenRequest)
 }

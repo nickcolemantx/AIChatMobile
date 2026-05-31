@@ -54,3 +54,15 @@ data class ChatDto(
     val updatedAt: String?,
     val messages: List<ChatMessageDto> = emptyList(),
 )
+
+@JsonClass(generateAdapter = true)
+data class GenerationStatusDto(
+    val status: String,           // GENERATING | DONE | ERROR | CANCELLED
+    val partialContent: String? = null,
+    val error: String? = null,
+)
+
+@JsonClass(generateAdapter = true)
+data class RegisterFcmTokenRequest(
+    val token: String,
+)

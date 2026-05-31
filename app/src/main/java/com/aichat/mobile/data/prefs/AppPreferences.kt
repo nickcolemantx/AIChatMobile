@@ -20,13 +20,20 @@ class AppPreferences @Inject constructor(
     private val keyBaseUrl = stringPreferencesKey("base_url")
     private val keyToken = stringPreferencesKey("jwt_token")
     private val keyUsername = stringPreferencesKey("username")
+    private val keyFcmToken = stringPreferencesKey("fcm_token")
 
     val baseUrl: Flow<String?> = context.dataStore.data.map { it[keyBaseUrl] }
     val token: Flow<String?> = context.dataStore.data.map { it[keyToken] }
     val username: Flow<String?> = context.dataStore.data.map { it[keyUsername] }
+    val fcmToken: Flow<String?> = context.dataStore.data.map { it[keyFcmToken] }
 
     suspend fun currentBaseUrl(): String? = baseUrl.first()
     suspend fun currentToken(): String? = token.first()
+    suspend fun currentFcmToken(): String? = fcmToken.first()
+
+    suspend fun saveFcmToken(token: String) {
+        context.dataStore.edit { it[keyFcmToken] = token }
+    }
 
     suspend fun saveSession(baseUrl: String, token: String, username: String) {
         context.dataStore.edit {
